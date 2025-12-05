@@ -1,0 +1,5 @@
+{
+  "name": "TentCard Gen.",
+  "description": "A browser-based tool to generate foldable conference name plates with automatic 2-up layout, multi-line support, and instant print capabilities.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,77 @@
+# Build a Complete Web App which genearte Conference Style Nameplateswith direct browser print.
+
+Create a web based app that contains everything:. The app must run instantly on any browser and be fully functional offline after first load.
+
+### Core Requirements:
+1. **Purpose**: Generate foldable conference name plates where the name is printed once right-side-up and once rotated 180° so that when folded in half and placed in a holder, the name is always readable from both sides.
+- When printed and folded in half, the name is readable from both sides  
+- Designed for standard tent-style name plate holders
+2. **Paper Support**: A4 by default, with toggle for Letter. Portrait by default but can change to landscape.
+3. **Two plates per page** automatically if total height allows (≤ 21 cm for A4), otherwise one per page.
+
+4. **Multi-line support**:
+   - Line 1: Full name (largest font)
+   - Line 2: Designation + Company (smaller, e.g., "CEO, xAI")
+   - Optional Line 3 if needed
+   - Auto-scale secondary text to ~75% size and slightly lighter/italic by default
+
+5. **Input Methods** (both supported):
+   - Large textarea where user can paste:
+	John Doe, CEO, xAI
+	Jane Smith, CTO, Google
+	Dr. Alice Brown, Research Director, OpenAI
+   - Auto-parsing: each line = one name plate, comma or "—" separates title/company
+   - Also support Manual Adding each name plate's name and smaller secondary line. 
+
+6. **Customization (minimalist UI)**:
+- Width (5–20 cm) and Height (2–15 cm) sliders with live cm display
+- Font family: 6-10 options (Arial, Helvetica, Times New Roman, Georgia, Courier New, Verdana, Inter, Cambria)
+- Font size base (10–30pt)
+- Text color (black default + 8 preset colors)
+- Bold / Italic toggles
+- Border: None / Thin / Medium / Thick
+- Secondary text scale (60%–90% slider, default 75%)
+- All changes update preview instantly (debounced)
+
+7. **Preview**:
+- Default: **Flat print preview** showing exact A4/Letter page layout with:
+- Dashed center fold line
+- Optional light cut marks
+- All plates perfectly positioned
+- Optional toggle: "Fancy 3D View" (simple CSS hover rotateY on one sample plate — off by default)
+- Live update on every change (debounced 200ms)
+
+8. **Printing**
+- Big **"Print Now"** button  
+- Opens browser print dialog (Ctrl+P) with perfect @media print styles:
+- 1 cm scale ruler on first page only (for verification)
+- Print first page as a sample page and let user click on continue to create next pages or click on adjust/cancel button to do modifications.
+- No UI, no margins, no headers/footers
+- Exact cm sizes preserved
+- Backgrounds and borders print correctly
+- Works perfectly in Chrome, Edge, Firefox, Safari
+
+9. **Low-End Optimizations**:
+- No Canvas 3D, no heavy libraries
+- Debounce all input events
+- Lazy-render preview only when in viewport
+
+10. **UI/UX Must Be**:
+- Single page, no navigation
+- Clean, minimalist, lots of white space
+- Mobile-friendly (touch sliders)
+- Load with a sample name ("Elon Musk, Founder, xAI") so user sees it instantly
+- All controls in left sidebar, right sidebar = preview
+
+### Final Deliverable
+- No other external resources
+- Fully working print page with correct rotation and layout
+- Auto two-per-page logic
+- Dashed fold line and optional cut marks
+- When click on print out button then give a - say thanks/shoutout popup which thanks the develper and says Developed by "  " with love, with emojis. and this popup will work as a - first page print out popup and it should stay at screen until user click on continue to create next pages or click on adjust/cancel button to do modifications.
+
+Add a suitable title at the top
+
+Include a suitable small footer with emojis
+
+— Now generate the full code. —
