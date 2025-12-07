@@ -33,7 +33,7 @@
         display: none !important;
       }
 
-      /* Make main content visible */
+      /* Make main content visible and reset any transforms */
       main {
         display: block !important;
         height: auto !important;
@@ -41,6 +41,22 @@
         background: white !important;
         padding: 0 !important;
         margin: 0 !important;
+      }
+
+      /* CRITICAL: Reset any scale transforms for print */
+      main > div,
+      main > div > div {
+        transform: none !important;
+        transform-origin: initial !important;
+      }
+
+      /* Hide preview-only elements like scale indicator, rulers, guides */
+      .fixed,
+      [class*="border-dotted"],
+      [class*="-translate-x-full"],
+      [class*="translate-x-full"],
+      [class*="translate-y-full"] {
+        display: none !important;
       }
 
       /* Ensure pages break correctly */
@@ -52,8 +68,11 @@
         box-shadow: none !important;
         border: none !important;
         margin: 0 !important;
-        break-after: always;
-        page-break-after: always;
+        padding: 0 !important;
+        break-after: always !important;
+        page-break-after: always !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
         position: relative !important;
         left: 0 !important;
         top: 0 !important;
@@ -61,8 +80,8 @@
 
       /* Last page shouldn't force a blank page after it */
       .print-page:last-child {
-        break-after: auto;
-        page-break-after: auto;
+        break-after: auto !important;
+        page-break-after: auto !important;
       }
 
       /* Ensure background colors/borders print */
