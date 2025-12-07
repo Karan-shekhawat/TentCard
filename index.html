@@ -13,34 +13,55 @@
         margin: 0;
       }
 
-      body,
+      /* Reset ALL elements to allow content to flow */
       html,
-      #root {
+      body,
+      #root,
+      main,
+      main>div,
+      main>div>div,
+      main>div>div>div {
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        position: static !important;
         background: white !important;
-        color: black !important;
         margin: 0 !important;
         padding: 0 !important;
+      }
+
+      body {
         width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
       }
 
       /* Hide all UI elements */
       aside,
       footer,
       button,
-      .modal-backdrop {
+      .modal-backdrop,
+      .fixed {
         display: none !important;
       }
 
-      /* Make main content visible */
-      main {
-        display: block !important;
-        height: auto !important;
-        overflow: visible !important;
-        background: white !important;
-        padding: 0 !important;
-        margin: 0 !important;
+      /* CRITICAL: Reset any scale transforms for print */
+      main>div,
+      main>div>div,
+      main>div>div>div {
+        transform: none !important;
+        transform-origin: initial !important;
+      }
+
+      /* Hide preview-only elements like rulers, guides, indicators */
+      [class*="border-dotted"],
+      [class*="-translate-x-full"],
+      [class*="translate-x-full"],
+      [class*="translate-y-full"],
+      [class*="-top-10"],
+      [class*="-bottom-10"],
+      [class*="-left-16"],
+      [class*="-right-16"] {
+        display: none !important;
       }
 
       /* Ensure pages break correctly */
@@ -50,19 +71,19 @@
         justify-content: center !important;
         align-items: center !important;
         box-shadow: none !important;
-        border: none !important;
         margin: 0 !important;
-        break-after: always;
-        page-break-after: always;
+        padding: 0 !important;
+        break-after: always !important;
+        page-break-after: always !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
         position: relative !important;
-        left: 0 !important;
-        top: 0 !important;
       }
 
       /* Last page shouldn't force a blank page after it */
       .print-page:last-child {
-        break-after: auto;
-        page-break-after: auto;
+        break-after: auto !important;
+        page-break-after: auto !important;
       }
 
       /* Ensure background colors/borders print */

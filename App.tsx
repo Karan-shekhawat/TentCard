@@ -35,6 +35,79 @@ const App: React.FC = () => {
               size: ${config.paperSize} ${config.orientation};
               margin: 0;
             }
+            
+            /* CRITICAL: Override all layout constraints for print */
+            html, body, #root {
+              height: auto !important;
+              width: 100% !important;
+              overflow: visible !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              display: block !important;
+              background: white !important;
+            }
+            
+            /* Override the root flex container */
+            #root > div {
+              display: block !important;
+              height: auto !important;
+              width: 100% !important;
+              overflow: visible !important;
+              background: white !important;
+            }
+            
+            /* Override main element */
+            main {
+              display: block !important;
+              height: auto !important;
+              width: 100% !important;
+              overflow: visible !important;
+              position: static !important;
+              background: white !important;
+            }
+            
+            /* Override all nested containers in main */
+            main > div,
+            main > div > div,
+            main > div > div > div {
+              height: auto !important;
+              overflow: visible !important;
+              position: static !important;
+            }
+            
+            /* Reset the scale transform wrapper */
+            .print-pages-wrapper {
+              transform: none !important;
+              transform-origin: initial !important;
+            }
+            
+            /* Each page wrapper */
+            .page-wrapper {
+              position: static !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+            }
+            
+            /* Each print page - force page breaks */
+            .print-page {
+              box-shadow: none !important;
+              margin: 0 !important;
+              break-after: page !important;
+              page-break-after: always !important;
+              break-inside: avoid !important;
+              page-break-inside: avoid !important;
+            }
+            
+            .print-page:last-of-type {
+              break-after: auto !important;
+              page-break-after: auto !important;
+            }
+            
+            /* Ensure colors print */
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
           }
         `}
       </style>
