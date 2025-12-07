@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AppConfig, NameEntry } from '../types';
 import { PAPER_DIMENSIONS } from '../constants';
 import NamePlate from './NamePlate';
@@ -10,34 +10,11 @@ interface PrintPreviewProps {
 }
 
 const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
-  const [scale, setScale] = useState(1);
-
-  // Calculate optimal scale based on viewport
-  useEffect(() => {
-    const calculateScale = () => {
-      const paper = PAPER_DIMENSIONS[config.paperSize];
-      const paperH = config.orientation === 'portrait' ? paper.height : paper.width;
-
-      // Convert cm to pixels (approximately 37.8 pixels per cm)
-      const cmToPx = 37.8;
-      const paperHeightPx = paperH * cmToPx;
-
-      // Get available viewport height (subtract header/footer space ~100px)
-      const availableHeight = window.innerHeight - 100;
-
-      // Calculate scale to fit paper in viewport
-      let newScale = availableHeight / (paperHeightPx + 150); // +150 for rulers and padding
-
-      // Clamp scale between 0.3 and 1
-      newScale = Math.min(1, Math.max(0.3, newScale));
-
-      setScale(newScale);
-    };
-
-    calculateScale();
-    window.addEventListener('resize', calculateScale);
-    return () => window.removeEventListener('resize', calculateScale);
-  }, [config.paperSize, config.orientation]);
+  // View Options State
+  const [scale, setScale] = useState(0.7); // Default zoom 70%
+  const [showMainRuler, setShowMainRuler] = useState(false); // Default OFF
+  const [showSizeIndicators, setShowSizeIndicators] = useState(true); // Default ON
+  const [showPrintRulers, setShowPrintRulers] = useState(true); // Default ON
 
   // Calculation logic for layout
   const pages = useMemo(() => {
@@ -66,14 +43,61 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
     : { width: PAPER_DIMENSIONS[config.paperSize].height, height: PAPER_DIMENSIONS[config.paperSize].width };
 
   return (
-    <div className="print-preview-container">
-      {/* Scale indicator - screen only */}
-      <div className="fixed top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-gray-200 text-xs font-medium text-gray-600 print:hidden z-50">
-        Preview: {Math.round(scale * 100)}%
+    <div className="print-preview-container flex flex-col h-full w-full bg-gray-100">
+      {/* View Options Control Bar - Screen Only */}
+      <div className="view-options-bar flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shadow-sm print:hidden z-50 sticky top-0">
+        <div className="flex items-center gap-6">
+          <div className="text-sm font-semibold text-gray-700">View Options:</div>
+
+          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
+            <input
+              type="checkbox"
+              checked={showMainRuler}
+              onChange={(e) => setShowMainRuler(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Page Ruler
+          </label>
+
+          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
+            <input
+              type="checkbox"
+              checked={showSizeIndicators}
+              onChange={(e) => setShowSizeIndicators(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Size Indicators
+          </label>
+
+          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
+            <input
+              type="checkbox"
+              checked={showPrintRulers}
+              onChange={(e) => setShowPrintRulers(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Print Rulers
+          </label>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 text-sm text-gray-600">
+            <span>Zoom:</span>
+            <input
+              type="range"
+              min="30"
+              max="150"
+              value={scale * 100}
+              onChange={(e) => setScale(Number(e.target.value) / 100)}
+              className="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="w-12 text-right font-medium">{Math.round(scale * 100)}%</span>
+          </label>
+        </div>
       </div>
 
       {/* Scrollable container for screen preview */}
-      <div className="flex flex-col items-center pt-12 pb-8 w-full h-full overflow-auto print:overflow-visible print:h-auto print:p-0">
+      <div className="flex-1 overflow-auto bg-gray-100 p-8 flex flex-col items-center">
         {names.length === 0 && (
           <div className="text-gray-400 text-lg mt-20 print:hidden">Start by adding names on the left...</div>
         )}
@@ -111,61 +135,69 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
                 </div>
 
                 {/* Guide Lines - Screen Only */}
-                <div className="guides absolute inset-0 pointer-events-none z-20 print:hidden">
-                  {/* Horizontal Dotted Lines */}
-                  {horizontalLines.map((y, idx) => (
-                    <div key={`h-line-${idx}`} className="absolute left-0 w-full border-t border-dotted border-red-400 opacity-50" style={{ top: `${(y / paperDims.height) * 100}%` }}></div>
-                  ))}
-                  {/* Vertical Dotted Lines */}
-                  {verticalLines.map((x, idx) => (
-                    <div key={`v-line-${idx}`} className="absolute top-0 h-full border-l border-dotted border-red-400 opacity-50" style={{ left: `${(x / paperDims.width) * 100}%` }}></div>
-                  ))}
-                </div>
+                {showMainRuler && (
+                  <div className="guides absolute inset-0 pointer-events-none z-20 print:hidden">
+                    {/* Horizontal Dotted Lines */}
+                    {horizontalLines.map((y, idx) => (
+                      <div key={`h-line-${idx}`} className="absolute left-0 w-full border-t border-dotted border-red-400 opacity-50" style={{ top: `${(y / paperDims.height) * 100}%` }}></div>
+                    ))}
+                    {/* Vertical Dotted Lines */}
+                    {verticalLines.map((x, idx) => (
+                      <div key={`v-line-${idx}`} className="absolute top-0 h-full border-l border-dotted border-red-400 opacity-50" style={{ left: `${(x / paperDims.width) * 100}%` }}></div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Left Ruler - Screen Only */}
-                <div className="ruler-left absolute left-0 top-0 h-full w-12 -translate-x-full print:hidden flex flex-col pointer-events-none select-none bg-white/50 border-r border-gray-200">
-                  <div className="relative w-full h-full">
-                    {Array.from({ length: Math.floor(paperDims.height) + 1 }, (_, i) => {
-                      const isActive = i >= Math.floor(startY) && i <= Math.ceil(endY);
-                      return (
-                        <div key={i} className="absolute right-0 w-full flex items-center justify-end" style={{ top: `${(i / paperDims.height) * 100}%`, transform: 'translateY(-50%)' }}>
-                          <span className={`text-[10px] font-medium mr-2 ${isActive ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{i}</span>
-                          <div className={`w-3 h-px ${isActive ? 'bg-red-400' : 'bg-gray-400'}`}></div>
-                        </div>
-                      )
-                    })}
+                {showMainRuler && (
+                  <div className="ruler-left absolute left-0 top-0 h-full w-12 -translate-x-full print:hidden flex flex-col pointer-events-none select-none bg-white/50 border-r border-gray-200">
+                    <div className="relative w-full h-full">
+                      {Array.from({ length: Math.floor(paperDims.height) + 1 }, (_, i) => {
+                        const isActive = i >= Math.floor(startY) && i <= Math.ceil(endY);
+                        return (
+                          <div key={i} className="absolute right-0 w-full flex items-center justify-end" style={{ top: `${(i / paperDims.height) * 100}%`, transform: 'translateY(-50%)' }}>
+                            <span className={`text-[10px] font-medium mr-2 ${isActive ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{i}</span>
+                            <div className={`w-3 h-px ${isActive ? 'bg-red-400' : 'bg-gray-400'}`}></div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Right Ruler - Screen Only */}
-                <div className="ruler-right absolute right-0 top-0 h-full w-12 translate-x-full print:hidden flex flex-col pointer-events-none select-none bg-white/50 border-l border-gray-200">
-                  <div className="relative w-full h-full">
-                    {Array.from({ length: Math.floor(paperDims.height) + 1 }, (_, i) => {
-                      const isActive = i >= Math.floor(startY) && i <= Math.ceil(endY);
-                      return (
-                        <div key={i} className="absolute left-0 w-full flex items-center justify-start" style={{ top: `${(i / paperDims.height) * 100}%`, transform: 'translateY(-50%)' }}>
-                          <div className={`w-3 h-px ${isActive ? 'bg-red-400' : 'bg-gray-400'}`}></div>
-                          <span className={`text-[10px] font-medium ml-2 ${isActive ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{i}</span>
-                        </div>
-                      )
-                    })}
+                {showMainRuler && (
+                  <div className="ruler-right absolute right-0 top-0 h-full w-12 translate-x-full print:hidden flex flex-col pointer-events-none select-none bg-white/50 border-l border-gray-200">
+                    <div className="relative w-full h-full">
+                      {Array.from({ length: Math.floor(paperDims.height) + 1 }, (_, i) => {
+                        const isActive = i >= Math.floor(startY) && i <= Math.ceil(endY);
+                        return (
+                          <div key={i} className="absolute left-0 w-full flex items-center justify-start" style={{ top: `${(i / paperDims.height) * 100}%`, transform: 'translateY(-50%)' }}>
+                            <div className={`w-3 h-px ${isActive ? 'bg-red-400' : 'bg-gray-400'}`}></div>
+                            <span className={`text-[10px] font-medium ml-2 ${isActive ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{i}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Bottom Ruler - Screen Only */}
-                <div className="ruler-bottom absolute bottom-0 left-0 w-full h-12 translate-y-full print:hidden flex pointer-events-none select-none bg-white/50 border-t border-gray-200">
-                  <div className="relative w-full h-full">
-                    {Array.from({ length: Math.floor(paperDims.width) + 1 }, (_, i) => {
-                      const isActive = i >= Math.floor(startX) && i <= Math.ceil(endX);
-                      return (
-                        <div key={i} className="absolute top-0 h-full flex flex-col items-center justify-start" style={{ left: `${(i / paperDims.width) * 100}%`, transform: 'translateX(-50%)' }}>
-                          <div className={`h-3 w-px ${isActive ? 'bg-red-400' : 'bg-gray-400'}`}></div>
-                          <span className={`text-[10px] font-medium mt-1 ${isActive ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{i}</span>
-                        </div>
-                      )
-                    })}
+                {showMainRuler && (
+                  <div className="ruler-bottom absolute bottom-0 left-0 w-full h-12 translate-y-full print:hidden flex pointer-events-none select-none bg-white/50 border-t border-gray-200">
+                    <div className="relative w-full h-full">
+                      {Array.from({ length: Math.floor(paperDims.width) + 1 }, (_, i) => {
+                        const isActive = i >= Math.floor(startX) && i <= Math.ceil(endX);
+                        return (
+                          <div key={i} className="absolute top-0 h-full flex flex-col items-center justify-start" style={{ left: `${(i / paperDims.width) * 100}%`, transform: 'translateX(-50%)' }}>
+                            <div className={`h-3 w-px ${isActive ? 'bg-red-400' : 'bg-gray-400'}`}></div>
+                            <span className={`text-[10px] font-medium mt-1 ${isActive ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{i}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* THE ACTUAL PRINT PAGE */}
                 <div
@@ -184,24 +216,34 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
                   {pageNames.map((nameEntry, plateIndex) => (
                     <div key={nameEntry.id} className="plate-container z-10 relative group">
                       {/* Width Indicator - Screen Only */}
-                      <div className={`indicator-width absolute left-0 w-full text-center text-sm text-blue-600 font-bold print:hidden z-50 ${plateIndex === 0 ? '-top-10' : '-bottom-10'}`}>
-                        <div className="flex items-center justify-center gap-2 bg-white/90 shadow-sm rounded-full py-1 px-4 mx-auto w-max border border-blue-200">
-                          <div className="h-px w-8 bg-blue-400"></div>
-                          <span>{config.plateWidthCm} cm</span>
-                          <div className="h-px w-8 bg-blue-400"></div>
+                      {showSizeIndicators && (
+                        <div className={`indicator-width absolute left-0 w-full text-center text-sm text-blue-600 font-bold print:hidden z-50 ${plateIndex === 0 ? '-top-10' : '-bottom-10'}`}>
+                          <div className="flex items-center justify-center gap-2 bg-white/90 shadow-sm rounded-full py-1 px-4 mx-auto w-max border border-blue-200">
+                            <div className="h-px w-8 bg-blue-400"></div>
+                            <span>{config.plateWidthCm} cm</span>
+                            <div className="h-px w-8 bg-blue-400"></div>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Height Indicator - Screen Only */}
-                      <div className={`indicator-height absolute top-0 h-full flex items-center justify-center text-sm text-blue-600 font-bold print:hidden z-50 ${plateIndex === 0 ? '-left-16' : '-right-16'}`}>
-                        <div className="flex flex-col items-center gap-2 bg-white/90 shadow-sm rounded-full py-4 px-1 border border-blue-200">
-                          <div className="w-px h-8 bg-blue-400"></div>
-                          <span className="vertical-rl rotate-180" style={{ writingMode: 'vertical-rl' }}>{config.plateHeightCm * 2} cm</span>
-                          <div className="w-px h-8 bg-blue-400"></div>
+                      {showSizeIndicators && (
+                        <div className={`indicator-height absolute top-0 h-full flex items-center justify-center text-sm text-blue-600 font-bold print:hidden z-50 ${plateIndex === 0 ? '-left-16' : '-right-16'}`}>
+                          <div className="flex flex-col items-center gap-2 bg-white/90 shadow-sm rounded-full py-4 px-1 border border-blue-200">
+                            <div className="w-px h-8 bg-blue-400"></div>
+                            <span className="vertical-rl rotate-180" style={{ writingMode: 'vertical-rl' }}>{config.plateHeightCm * 2} cm</span>
+                            <div className="w-px h-8 bg-blue-400"></div>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      <NamePlate data={nameEntry} config={config} />
+                      <NamePlate
+                        data={nameEntry}
+                        config={config}
+                        isFirstOnPage={plateIndex === 0}
+                        isLastOnPage={plateIndex === pageNames.length - 1}
+                        showPrintRulers={showPrintRulers}
+                      />
                     </div>
                   ))}
                 </div>
@@ -224,51 +266,43 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
           }
           
           /* Hide all non-print elements */
-          aside, footer, header, nav, .fixed, 
+          aside, footer, header, nav, .fixed, .view-options-bar,
           .page-header, .guides, .ruler-left, .ruler-right, .ruler-bottom,
           .indicator-width, .indicator-height {
             display: none !important;
           }
-          
-          /* Reset the preview container */
-          .print-preview-container,
-          .print-preview-container > div {
+
+          /* Ensure proper page breaks and layout */
+          .print-preview-container {
+            display: block !important;
             height: auto !important;
+            width: auto !important;
             overflow: visible !important;
-            padding: 0 !important;
-            margin: 0 !important;
+            background: white !important;
           }
-          
-          /* CRITICAL: Remove scale transform for print */
-          .print-pages-wrapper {
-            transform: none !important;
-            gap: 0 !important;
+           
+          /* Force display of print wrappers */
+          .print-pages-wrapper, .page-wrapper {
+             display: block !important;
+             height: auto !important;
+             overflow: visible !important;
+             transform: none !important; /* Disable zoom for print */
           }
-          
-          /* Page wrapper for print */
-          .page-wrapper {
-            position: static !important;
-          }
-          
-          /* Each print page */
+
+          /* Define page constraints */
           .print-page {
-            break-after: page !important;
-            page-break-after: always !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
             box-shadow: none !important;
             margin: 0 !important;
+            page-break-after: always;
+            break-after: always;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
           }
           
-          .print-page:last-child {
-            break-after: auto !important;
-            page-break-after: auto !important;
-          }
-          
-          /* Ensure colors print */
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+          /* Ensure last page doesn't break endlessly */
+          .page-wrapper:last-child .print-page {
+             break-after: auto;
+             page-break-after: auto;
           }
         }
       `}</style>

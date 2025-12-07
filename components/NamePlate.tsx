@@ -5,6 +5,9 @@ import { AppConfig, NameEntry } from '../types';
 interface NamePlateProps {
   data: NameEntry;
   config: AppConfig;
+  isFirstOnPage?: boolean; // First plate on page - no gap at top of right ruler
+  isLastOnPage?: boolean; // Show bottom ruler only on last plate per page
+  showPrintRulers?: boolean; // Conditional display of printable rulers
 }
 
 // Helper component for Auto-Fitting text
@@ -59,7 +62,13 @@ const AutoFitText: React.FC<{
   );
 };
 
-const NamePlate: React.FC<NamePlateProps> = ({ data, config }) => {
+const NamePlate: React.FC<NamePlateProps> = ({
+  data,
+  config,
+  isFirstOnPage = true,
+  isLastOnPage = true,
+  showPrintRulers = true
+}) => {
   // Border width mapping
   const borderWidths = {
     none: '0px',
@@ -79,6 +88,7 @@ const NamePlate: React.FC<NamePlateProps> = ({ data, config }) => {
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
+    boxSizing: 'border-box', // Ensure borders don't add extra height
     ...borderStyle,
     color: config.textColor,
     fontFamily: config.fontFamily,
@@ -155,11 +165,11 @@ const NamePlate: React.FC<NamePlateProps> = ({ data, config }) => {
   };
 
   // Generate ruler marks for the given length in cm
-  // Extended by 2cm beyond the actual size
-  const generateRulerMarks = (lengthCm: number, isVertical: boolean, flipDirection: boolean = false) => {
+  // extend: if true, adds 2cm beyond the actual size (for bottom ruler), if false uses exact length (for right ruler)
+  const generateRulerMarks = (lengthCm: number, isVertical: boolean, flipDirection: boolean = false, extend: boolean = true) => {
     const marks = [];
-    const extendedLengthCm = lengthCm + 2; // Add 2cm extra
-    const totalMm = Math.floor(extendedLengthCm * 10);
+    const actualLengthCm = extend ? lengthCm + 2 : lengthCm; // Only extend if requested
+    const totalMm = Math.floor(actualLengthCm * 10);
 
     for (let mm = 0; mm <= totalMm; mm++) {
       const isCm = mm % 10 === 0;
@@ -216,9 +226,12 @@ const NamePlate: React.FC<NamePlateProps> = ({ data, config }) => {
     return marks;
   };
 
-  // Calculate extended ruler dimensions
-  const extendedHeight = config.plateHeightCm * 2 + 2; // +2cm extension
-  const extendedWidth = config.plateWidthCm + 2; // +2cm extension
+  // Fixed ruler dimensions
+  // Right ruler: height of plate. If last on page, shorten by 1mm (0.1cm) to avoid touching bottom ruler/corner
+  const rightRulerHeight = config.plateHeightCm * 2 - (isLastOnPage ? 0.1 : 0);
+
+  // Bottom ruler: plate width + 2cm, max 28cm
+  const bottomRulerWidth = Math.min(config.plateWidthCm + 2, 28);
 
   return (
     <div className="name-plate-container" style={containerStyle}>
@@ -228,43 +241,38 @@ const NamePlate: React.FC<NamePlateProps> = ({ data, config }) => {
         style={{ borderWidth: '1px' }}
       />
 
-      {/* PRINTABLE GUIDE RULER - Right Side (Height) - Extended and flipped */}
-      <div
-        className="absolute -top-[1cm] -right-[0.8cm] pointer-events-none"
-        style={{
-          width: '0.7cm',
-          height: `${extendedHeight}cm`
-        }}
-      >
-        <div className="relative h-full w-full border-l border-gray-400">
-          {generateRulerMarks(config.plateHeightCm * 2, true, true)}
-        </div>
+      {/* PRINTABLE GUIDE RULER - Right Side (Height) - Ends exactly at plate bottom */}
+      {showPrintRulers && (
         <div
-          className="absolute top-1/2 right-[-0.2cm] text-[5pt] text-gray-500 whitespace-nowrap"
-          style={{ transform: 'translateY(-50%) rotate(90deg)', transformOrigin: 'center center' }}
+          className="absolute -right-[0.8cm] pointer-events-none"
+          style={{
+            width: '0.7cm',
+            height: `${rightRulerHeight}cm`,
+            top: '0', // Start exactly at plate top
+          }}
         >
-          HEIGHT: {config.plateHeightCm * 2}cm
+          <div
+            className="relative w-full h-full border-l border-gray-400"
+          >
+            {generateRulerMarks(config.plateHeightCm * 2, true, true, false)}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* PRINTABLE GUIDE RULER - Bottom Side (Width) - Extended, stops before right ruler */}
-      <div
-        className="absolute -left-[1cm] -bottom-[0.8cm] pointer-events-none"
-        style={{
-          height: '0.7cm',
-          width: `${extendedWidth}cm`
-        }}
-      >
-        <div className="relative w-full h-full border-t border-gray-400">
-          {generateRulerMarks(config.plateWidthCm, false)}
-        </div>
+      {/* PRINTABLE GUIDE RULER - Bottom Side (Width) - width+2cm, max 28cm, only on last plate */}
+      {showPrintRulers && isLastOnPage && (
         <div
-          className="absolute bottom-[-0.3cm] left-1/2 text-[5pt] text-gray-500 whitespace-nowrap"
-          style={{ transform: 'translateX(-50%)' }}
+          className="absolute -left-[1cm] -bottom-[0.8cm] pointer-events-none"
+          style={{
+            height: '0.7cm',
+            width: `${bottomRulerWidth}cm`
+          }}
         >
-          WIDTH: {config.plateWidthCm}cm
+          <div className="relative w-full h-full border-t border-gray-400">
+            {generateRulerMarks(bottomRulerWidth - 2, false)}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Top Half (Rotated 180deg) */}
       <div style={{ ...halfStyle, transform: 'rotate(180deg)' }}>
