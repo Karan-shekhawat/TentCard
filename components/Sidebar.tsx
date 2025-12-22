@@ -2,7 +2,7 @@
 import React, { ChangeEvent, useState } from 'react';
 import { AppConfig, NameEntry, PaperSize, Orientation, BorderStyle } from '../types';
 import { FONT_OPTIONS, COLOR_OPTIONS } from '../constants';
-import { Settings, Printer, List, Layout, Plus, Trash2, AlignJustify, ZoomIn, ZoomOut, ChevronDown, Palette, FileText, Check, Scaling } from 'lucide-react';
+import { Settings, Printer, List, Layout, Plus, Trash2, AlignJustify, ZoomIn, ZoomOut, ChevronDown, Palette, FileText, Check, Scaling, HelpCircle } from 'lucide-react';
 
 interface SidebarProps {
     config: AppConfig;
@@ -12,18 +12,23 @@ interface SidebarProps {
     onPrint: () => void;
     bulkText: string;
     setBulkText: (text: string) => void;
+    activeTab: 'names' | 'style';
+    setActiveTab: (tab: 'names' | 'style') => void;
+    inputMode: 'manual' | 'bulk';
+    setInputMode: (mode: 'manual' | 'bulk') => void;
 }
 
 interface ConfigSectionProps {
     title: string;
     icon?: any;
     defaultOpen?: boolean;
+    id?: string;
 }
 
-const ConfigSection: React.FC<React.PropsWithChildren<ConfigSectionProps>> = ({ title, icon: Icon, children, defaultOpen = false }) => {
+const ConfigSection: React.FC<React.PropsWithChildren<ConfigSectionProps>> = ({ title, icon: Icon, children, defaultOpen = false, id }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm mb-3">
+        <div id={id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm mb-3">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -46,10 +51,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     onPrint,
     bulkText,
     setBulkText,
+    activeTab,
+    setActiveTab,
+    inputMode,
+    setInputMode,
 }) => {
-    const [activeTab, setActiveTab] = React.useState<'names' | 'style'>('names');
-    const [inputMode, setInputMode] = React.useState<'manual' | 'bulk'>('manual');
-
     // Manual Entry State
     const [manualLine1, setManualLine1] = useState('');
     const [manualLine2, setManualLine2] = useState('');
@@ -165,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {inputMode === 'manual' ? (
                             <>
                                 {/* Add New Section */}
-                                <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm space-y-2 mb-4">
+                                <div id="tour-manual-input" className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm space-y-2 mb-4">
                                     <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Create New Plate</h3>
                                     <div className="space-y-1.5">
                                         <input
@@ -195,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </div>
 
                                 {/* List of names */}
-                                <div className="space-y-2">
+                                <div id="tour-names-list" className="space-y-2">
                                     <div className="flex items-center justify-between px-1">
                                         <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Your Plates ({names.length})</h3>
                                     </div>
@@ -209,7 +215,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 </div>
                                                 <button
                                                     onClick={() => handleDelete(entry.id)}
-                                                    className="p-1 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                    className="delete-btn p-1 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                                                     title="Delete"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
@@ -217,11 +223,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                                             </div>
 
                                             {/* Individual Scale Controls - Always visible */}
-                                            <div className="flex items-center gap-1.5 bg-gray-50 rounded-md p-1 border border-gray-100">
+                                            <div className="zoom-controls flex items-center gap-1.5 bg-gray-50 rounded-md p-1 border border-gray-100">
                                                 <span className="text-[9px] uppercase font-bold text-gray-400 px-1">Size</span>
                                                 <button
                                                     onClick={() => handleScaleChange(entry.id, -0.1)}
-                                                    className="w-6 h-6 flex items-center justify-center hover:bg-white hover:shadow-sm rounded text-gray-600 transition-all border border-transparent hover:border-gray-200"
+                                                    className="onboarding-zoom-btn w-6 h-6 flex items-center justify-center hover:bg-white hover:shadow-sm rounded text-gray-600 transition-all border border-transparent hover:border-gray-200"
                                                     title="Decrease Size"
                                                 >
                                                     <ZoomOut className="w-3 h-3" />
@@ -233,7 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
                                                 <button
                                                     onClick={() => handleScaleChange(entry.id, 0.1)}
-                                                    className="w-6 h-6 flex items-center justify-center hover:bg-white hover:shadow-sm rounded text-gray-600 transition-all border border-transparent hover:border-gray-200"
+                                                    className="onboarding-zoom-btn w-6 h-6 flex items-center justify-center hover:bg-white hover:shadow-sm rounded text-gray-600 transition-all border border-transparent hover:border-gray-200"
                                                     title="Increase Size"
                                                 >
                                                     <ZoomIn className="w-3 h-3" />
@@ -250,7 +256,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </div>
                             </>
                         ) : (
-                            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm h-full flex flex-col">
+                            <div id="tour-bulk-mode" className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm h-full flex flex-col">
                                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                                     Bulk Paste
                                 </label>
@@ -305,7 +311,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </ConfigSection>
 
                         {/* Dimensions */}
-                        <ConfigSection title="Plate Dimensions" icon={FileText} defaultOpen={true}>
+                        <ConfigSection id="tour-dimensions" title="Plate Dimensions" icon={FileText} defaultOpen={true}>
                             <div className="space-y-3">
                                 <div>
                                     <div className="flex justify-between mb-1">
@@ -512,7 +518,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 )}
             </div>
 
-            <div className="p-2.5 border-t border-gray-200 bg-white">
+            <div id="tour-print" className="p-2.5 border-t border-gray-200 bg-white">
                 <button
                     onClick={onPrint}
                     className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-1.5 transform active:scale-[0.98] text-xs"

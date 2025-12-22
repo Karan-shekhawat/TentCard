@@ -2,16 +2,58 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import PrintPreview from './components/PrintPreview';
 import PrintModal from './components/PrintModal';
+import OnboardingModal from './components/OnboardingModal';
 import { AppConfig, NameEntry } from './types';
-import { DEFAULT_CONFIG, DEFAULT_NAMES } from './constants';
+import { DEFAULT_CONFIG } from './constants'; // DEFAULT_NAMES is no longer imported from constants
 
 const App: React.FC = () => {
   const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  // Define DEFAULT_NAMES locally with a single generic entry
+  const DEFAULT_NAMES: NameEntry[] = [
+    { id: '1', line1: 'Full Name', line2: 'Designation' },
+  ];
   const [names, setNames] = useState<NameEntry[]>(DEFAULT_NAMES);
   const [bulkText, setBulkText] = useState(
     DEFAULT_NAMES.map(n => `${n.line1}, ${n.line2}`).join('\n')
   );
   const [showModal, setShowModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  // Lifted State from Sidebar
+  const [activeTab, setActiveTab] = useState<'names' | 'style'>('names');
+  const [inputMode, setInputMode] = useState<'manual' | 'bulk'>('manual');
+
+
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false);
+    // User requested to switch to "Names" tab and list view on completion
+    setActiveTab('names');
+    setInputMode('manual');
+    localStorage.setItem('tentcard_onboarding_seen', 'true');
+  };
+
+  const handleStepChange = (stepIndex: number) => {
+    // 0: Welcome
+    // 1: Manual (List & Size)
+    // 2: Bulk
+    // 3: Delete
+    // 4: Zoom
+    // 5: Dimensions (Style Tab)
+    // 6: Print
+
+    if (stepIndex === 1) { // Manual
+      setActiveTab('names');
+      setInputMode('manual');
+    } else if (stepIndex === 2) { // Bulk
+      setActiveTab('names');
+      setInputMode('bulk');
+    } else if (stepIndex === 3 || stepIndex === 4) { // Delete / Zoom (Back to list)
+      setActiveTab('names');
+      setInputMode('manual'); // Need manual mode to see list items
+    } else if (stepIndex === 5) { // Dimensions
+      setActiveTab('style');
+    }
+  };
 
   // Simple debounce for preview rendering if needed, 
   // but React 18 handles this efficiently. 
@@ -121,12 +163,20 @@ const App: React.FC = () => {
           onPrint={handlePrintRequest}
           bulkText={bulkText}
           setBulkText={setBulkText}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          inputMode={inputMode}
+          setInputMode={setInputMode}
         />
       </div>
 
       {/* Main Preview Area */}
       <main className="flex-1 h-full overflow-auto bg-gray-200/80 relative">
-        <PrintPreview config={config} names={names} />
+        <PrintPreview
+          config={config}
+          names={names}
+          onHelp={() => setShowOnboarding(true)}
+        />
       </main>
 
       {/* Print Modal */}
@@ -134,6 +184,13 @@ const App: React.FC = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={handlePrintConfirm}
+      />
+
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={handleCloseOnboarding}
+        onStepChange={handleStepChange}
       />
 
       {/* Footer / Branding - Visible only on screen */}

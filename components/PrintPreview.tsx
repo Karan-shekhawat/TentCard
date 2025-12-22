@@ -3,13 +3,15 @@ import React, { useMemo, useState } from 'react';
 import { AppConfig, NameEntry } from '../types';
 import { PAPER_DIMENSIONS } from '../constants';
 import NamePlate from './NamePlate';
+import { HelpCircle } from 'lucide-react';
 
 interface PrintPreviewProps {
   config: AppConfig;
   names: NameEntry[];
+  onHelp: () => void;
 }
 
-const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
+const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names, onHelp }) => {
   // View Options State
   const [scale, setScale] = useState(0.7); // Default zoom 70%
   const [showMainRuler, setShowMainRuler] = useState(false); // Default OFF
@@ -93,6 +95,14 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
             />
             <span className="w-12 text-right font-medium">{Math.round(scale * 100)}%</span>
           </label>
+
+          <button
+            onClick={onHelp}
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+            title="Show Instructions"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
@@ -306,7 +316,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names }) => {
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 
