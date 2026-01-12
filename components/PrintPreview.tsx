@@ -45,67 +45,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names, onHelp }) =>
     : { width: PAPER_DIMENSIONS[config.paperSize].height, height: PAPER_DIMENSIONS[config.paperSize].width };
 
   return (
-    <div className="print-preview-container flex flex-col h-full w-full bg-gray-100">
-      {/* View Options Control Bar - Screen Only */}
-      <div className="view-options-bar flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shadow-sm print:hidden z-50 sticky top-0">
-        <div className="flex items-center gap-6">
-          <div className="text-sm font-semibold text-gray-700">View Options:</div>
-
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
-            <input
-              type="checkbox"
-              checked={showMainRuler}
-              onChange={(e) => setShowMainRuler(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            Page Ruler
-          </label>
-
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
-            <input
-              type="checkbox"
-              checked={showSizeIndicators}
-              onChange={(e) => setShowSizeIndicators(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            Size Indicators
-          </label>
-
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
-            <input
-              type="checkbox"
-              checked={showPrintRulers}
-              onChange={(e) => setShowPrintRulers(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            Print Rulers
-          </label>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Zoom:</span>
-            <input
-              type="range"
-              min="30"
-              max="150"
-              value={scale * 100}
-              onChange={(e) => setScale(Number(e.target.value) / 100)}
-              className="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
-            <span className="w-12 text-right font-medium">{Math.round(scale * 100)}%</span>
-          </label>
-
-          <button
-            onClick={onHelp}
-            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-            title="Show Instructions"
-          >
-            <HelpCircle className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
+    <div className="print-preview-container flex flex-col h-full w-full bg-gray-100 relative">
       {/* Scrollable container for screen preview */}
       <div className="flex-1 overflow-auto bg-gray-100 p-8 flex flex-col items-center">
         {names.length === 0 && (
@@ -260,6 +200,66 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ config, names, onHelp }) =>
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* View Options Control Bar - Screen Only (Moved to Bottom) */}
+      <div className="view-options-bar flex items-center justify-between px-4 py-2.5 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] print:hidden z-50 sticky bottom-0">
+        <div className="flex items-center gap-4">
+          <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">View Options</div>
+
+          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:text-gray-900 font-medium">
+            <input
+              type="checkbox"
+              checked={showMainRuler}
+              onChange={(e) => setShowMainRuler(e.target.checked)}
+              className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Page Ruler
+          </label>
+
+          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:text-gray-900 font-medium">
+            <input
+              type="checkbox"
+              checked={showSizeIndicators}
+              onChange={(e) => setShowSizeIndicators(e.target.checked)}
+              className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Indicators
+          </label>
+
+          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:text-gray-900 font-medium">
+            <input
+              type="checkbox"
+              checked={showPrintRulers}
+              onChange={(e) => setShowPrintRulers(e.target.checked)}
+              className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Print Rulers
+          </label>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 text-xs text-gray-600 font-medium">
+            <span className="text-gray-400 uppercase font-bold text-[10px]">Zoom</span>
+            <input
+              type="range"
+              min="30"
+              max="150"
+              value={scale * 100}
+              onChange={(e) => setScale(Number(e.target.value) / 100)}
+              className="w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+            <span className="w-8 text-right font-mono font-bold text-blue-600">{Math.round(scale * 100)}%</span>
+          </label>
+
+          <button
+            onClick={onHelp}
+            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+            title="Show Instructions"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

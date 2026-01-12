@@ -54,7 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     activeTab,
     setActiveTab,
     inputMode,
-    setInputMode,
+    setInputMode
 }) => {
     // Manual Entry State
     const [manualLine1, setManualLine1] = useState('');
@@ -117,13 +117,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     return (
-        <aside className="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col h-screen max-h-screen overflow-hidden font-sans z-30 transition-all duration-300 text-[0.85rem]">
-            <div className="p-2.5 border-b border-gray-200 bg-white">
-                <h1 className="text-base font-bold text-gray-800 flex items-center gap-2">
-                    <Printer className="w-4 h-4 text-blue-600" />
-                    NamePlate Gen
-                </h1>
-            </div>
+        <aside className="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col h-full max-h-screen overflow-hidden font-sans z-30 transition-all duration-300 text-[0.85rem]">
+            {/* Minimal top padding since we have a main header now */}
+            <div className="h-2 bg-gray-50/50"></div>
 
             <div className="flex border-b border-gray-200 bg-white">
                 <button
