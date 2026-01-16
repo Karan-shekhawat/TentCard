@@ -67,3 +67,25 @@ The project is a **Vite + React + TypeScript** application. Here is an overview 
     ```bash
     npm run preview
     ```
+
+## 5. Deployment to GitHub Pages
+
+The project is configured to deploy to GitHub Pages using the `gh-pages` package.
+
+### Steps to Deploy
+1.  **Commit your changes**: Ensure all your local changes are committed and pushed to your main branch.
+2.  **Run Deployment Command**:
+    Execute the following command in your terminal:
+    ```bash
+    npm run deploy
+    ```
+    This command will automatically:
+    -   Run `npm run build` to generate the latest production build.
+    -   Deploy the contents of the `dist/` folder to the `gh-pages` branch on GitHub.
+
+### Accessing the Website
+Once the deployment process is finished, your website will be updated at:
+[https://Karan-shekhawat.github.io/TentCard](https://Karan-shekhawat.github.io/TentCard)
+
+> [!NOTE]
+> It may take a couple of minutes for GitHub Pages to reflect the new changes after you run the deploy command.
