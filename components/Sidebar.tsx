@@ -312,13 +312,27 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <div>
                                     <div className="flex justify-between mb-1">
                                         <label className="text-[10px] font-medium text-gray-600">Width</label>
-                                        <span className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1 rounded">{config.plateWidthCm} cm</span>
+                                        <div className="flex items-center gap-1 text-[10px] font-mono text-blue-600 bg-blue-50 px-1 rounded">
+                                            <input
+                                                type="number"
+                                                min="5"
+                                                max="28"
+                                                step="0.1"
+                                                value={config.plateWidthCm}
+                                                onChange={(e) => {
+                                                    const val = parseFloat(e.target.value);
+                                                    if (!isNaN(val)) updateConfig('plateWidthCm', Math.max(5, Math.min(28, val)));
+                                                }}
+                                                className="w-10 bg-transparent border-none p-0 focus:ring-0 text-right outline-none"
+                                            />
+                                            <span>cm</span>
+                                        </div>
                                     </div>
                                     <input
                                         type="range"
                                         min="5"
                                         max="28"
-                                        step="0.5"
+                                        step="0.1"
                                         value={config.plateWidthCm}
                                         onChange={(e) => updateConfig('plateWidthCm', parseFloat(e.target.value))}
                                         className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
@@ -327,13 +341,27 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <div>
                                     <div className="flex justify-between mb-1">
                                         <label className="text-[10px] font-medium text-gray-600">Height (One Side)</label>
-                                        <span className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1 rounded">{config.plateHeightCm} cm</span>
+                                        <div className="flex items-center gap-1 text-[10px] font-mono text-blue-600 bg-blue-50 px-1 rounded">
+                                            <input
+                                                type="number"
+                                                min="2"
+                                                max="14"
+                                                step="0.1"
+                                                value={config.plateHeightCm}
+                                                onChange={(e) => {
+                                                    const val = parseFloat(e.target.value);
+                                                    if (!isNaN(val)) updateConfig('plateHeightCm', Math.max(2, Math.min(14, val)));
+                                                }}
+                                                className="w-8 bg-transparent border-none p-0 focus:ring-0 text-right outline-none"
+                                            />
+                                            <span>cm</span>
+                                        </div>
                                     </div>
                                     <input
                                         type="range"
                                         min="2"
                                         max="14"
-                                        step="0.5"
+                                        step="0.1"
                                         value={config.plateHeightCm}
                                         onChange={(e) => updateConfig('plateHeightCm', parseFloat(e.target.value))}
                                         className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"

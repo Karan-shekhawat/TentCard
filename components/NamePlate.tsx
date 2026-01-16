@@ -237,7 +237,7 @@ const NamePlate: React.FC<NamePlateProps> = ({
     <div className="name-plate-container" style={containerStyle}>
       {/* Fold Line (Middle) - Always visible */}
       <div
-        className="absolute top-1/2 left-0 w-full border-t border-dashed border-gray-300 transform -translate-y-1/2"
+        className="absolute top-1/2 left-0 w-full border-t border-dashed border-gray-500 transform -translate-y-1/2"
         style={{ borderWidth: '1px' }}
       />
 
