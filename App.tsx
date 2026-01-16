@@ -170,6 +170,22 @@ const AppContent: React.FC = () => {
               break-after: page !important;
               page-break-after: always !important;
               break-inside: avoid !important;
+              page-break-inside: avoid !important;
+            }
+            
+            .print-page:last-of-type {
+              break-after: auto !important;
+              page-break-after: auto !important;
+            }
+            
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
+        `}
+      </style>
+
       {/* Full Width Top Navigation Header */}
       <header className="print:hidden z-30 bg-white border-b border-gray-200 shadow-sm px-6 py-3 flex items-center justify-between h-14">
         <div className="flex items-center gap-3">
@@ -273,7 +289,7 @@ const AppContent: React.FC = () => {
 
       {/* Footer */}
       <footer className="fixed bottom-4 right-6 text-xs text-gray-400 pointer-events-none print:hidden z-10">
-        Minimalist Name Plate Gen 🏷️
+        Minimalist Name Plate Gen v1.1.0 🏷️
       </footer>
     </div>
   );
@@ -289,6 +305,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-/ /   D e p l o y m e n t   t e s t   0 1 / 1 6 / 2 0 2 6   1 5 : 1 0 : 2 7 
- 
- 
